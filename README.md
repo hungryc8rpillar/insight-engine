@@ -32,6 +32,7 @@ npx trigger.dev@latest dev
 ### Relevant Files
 
 - `src/trigger/tasks.ts`: Where our `generateFunctionDocs` background task is defined.
+- `src/lib/metadataStore.ts`: Wraps the run metadata with type-safe access.
 - `src/app/page.tsx`: The main page that invokes the server action function that triggers the background task.
 - `src/app/actions.ts`: The server action function that triggers the background task and redirects to `/runs/[id]`.
 - `src/app/runs/[id]/page.tsx`: The page that displays the status of the background task and the result when it's done.

@@ -2,6 +2,7 @@ import { metadata, schemaTask } from "@trigger.dev/sdk/v3";
 import { setTimeout } from "timers/promises";
 import { OpenAI } from "openai";
 import { z } from "zod";
+import { updateStatus } from "@/lib/metadataStore";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -15,15 +16,21 @@ export const generateFunctionDocs = schemaTask({
   }),
   maxDuration: 300, // 5 minutes
   run: async (payload, { ctx }) => {
-    metadata.set("status", { progress: 0, label: "Initializing..." });
+    updateStatus({ progress: 0, label: "Initializing..." });
 
     await setTimeout(1000);
 
-    metadata.set("status", { progress: 19, label: "Processing data..." });
+    updateStatus({
+      progress: 19,
+      label: "Processing data...",
+    });
 
     await setTimeout(1000);
 
-    metadata.set("status", { progress: 45, label: "Analyzing results..." });
+    updateStatus({
+      progress: 45,
+      label: "Analyzing results...",
+    });
 
     await setTimeout(1000);
 
@@ -34,7 +41,7 @@ export const generateFunctionDocs = schemaTask({
       model: "chatgpt-4o-latest",
     });
 
-    metadata.set("status", { progress: 85, label: "Finalizing..." });
+    updateStatus({ progress: 85, label: "Finalizing..." });
 
     await setTimeout(1000);
 
