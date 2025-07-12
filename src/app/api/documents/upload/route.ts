@@ -26,29 +26,48 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Trigger background processing job
-    const handle = await tasks.trigger(
-      "process-document",
-      {
-        documentId: document.id,
-        title: document.title,
-        content: document.content,
-      }
-    )
+    try {
+      // Trigger background processing job
+      const handle = await tasks.trigger(
+        "process-document",
+        {
+          documentId: document.id,
+          title: document.title,
+          content: document.content,
+        }
+      )
 
-    return NextResponse.json({
-      success: true,
-      document: {
-        id: document.id,
-        title: document.title,
-        uploadedAt: document.uploadedAt,
-      },
-      jobId: handle.id,
-    })
+      return NextResponse.json({
+        success: true,
+        document: {
+          id: document.id,
+          title: document.title,
+          uploadedAt: document.uploadedAt,
+        },
+        jobId: handle.id,
+      })
+    } catch (triggerError) {
+      console.error('Trigger.dev error:', triggerError)
+      
+      // If Trigger.dev fails, still return success but without job ID
+      return NextResponse.json({
+        success: true,
+        document: {
+          id: document.id,
+          title: document.title,
+          uploadedAt: document.uploadedAt,
+        },
+        error: 'Document uploaded but background processing failed. Please check Trigger.dev configuration.',
+        triggerError: triggerError instanceof Error ? triggerError.message : 'Unknown trigger error'
+      })
+    }
   } catch (error) {
     console.error('Upload error:', error)
     return NextResponse.json(
-      { error: 'Upload failed' },
+      { 
+        error: 'Upload failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
