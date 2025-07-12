@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { OpenAI } from 'openai'
 
+// Prevent pre-rendering during build
+export const dynamic = 'force-dynamic'
+
 // Import with error handling for build time
 let prisma: any
 let typesenseClient: any

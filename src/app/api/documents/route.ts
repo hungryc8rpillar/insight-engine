@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Prevent pre-rendering during build
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const documents = await prisma.document.findMany({

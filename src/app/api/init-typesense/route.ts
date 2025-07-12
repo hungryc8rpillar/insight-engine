@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { initializeTypesenseCollection, recreateTypesenseCollection } from '@/lib/init-typesense'
 
+// Prevent pre-rendering during build
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const { action } = await request.json()
