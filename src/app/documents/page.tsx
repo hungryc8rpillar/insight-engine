@@ -5,6 +5,9 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Search, MessageSquare, FileText, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 
+// Force dynamic rendering to avoid build-time database calls
+export const dynamic = 'force-dynamic'
+
 interface Document {
   id: string
   title: string

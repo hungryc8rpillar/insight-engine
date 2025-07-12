@@ -2,11 +2,5 @@
   "buildCommand": "npm run build",
   "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "framework": "nextjs",
-  "build": {
-    "env": {
-      "PRISMA_GENERATE_DATAPROXY": "false",
-      "PRISMA_CLIENT_ENGINE_TYPE": "binary"
-    }
-  }
+  "framework": "nextjs"
 } 
