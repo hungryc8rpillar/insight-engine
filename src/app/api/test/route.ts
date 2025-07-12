@@ -17,9 +17,21 @@ export async function GET(request: NextRequest) {
       const documentCount = await prisma.document.count()
       results.services.prisma = { connected: true, documentCount }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const isConnectionError = errorMessage.includes("Can't reach database server") || 
+                               errorMessage.includes("connection") ||
+                               errorMessage.includes("timeout")
+      
       results.services.prisma = { 
         connected: false, 
-        error: error instanceof Error ? error.message : 'Unknown error' 
+        error: errorMessage,
+        isConnectionError,
+        suggestions: isConnectionError ? [
+          'Check if DATABASE_URL and DIRECT_URL are set correctly in Vercel',
+          'Verify Supabase database is not paused',
+          'Check if Supabase allows connections from Vercel IPs',
+          'Try using Prisma Accelerate for better serverless performance'
+        ] : []
       }
     }
 

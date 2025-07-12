@@ -11,16 +11,13 @@ const getDatabaseUrl = () => {
     throw new Error('DATABASE_URL is not set')
   }
   
-  // If it's already a Prisma URL, return as is
-  if (url.startsWith('prisma://') || url.startsWith('prisma+postgres://')) {
-    return url
-  }
-  
-  // For Vercel deployment, we need to handle the URL format
-  if (process.env.NODE_ENV === 'production' && url.startsWith('postgresql://')) {
-    // In production, Vercel expects prisma:// format
-    // But we'll use the direct URL for now
-    return url
+  // For Vercel deployment with Supabase, we need to handle connection pooling
+  if (process.env.NODE_ENV === 'production' && url.includes('supabase.co')) {
+    // Use the direct URL for production to avoid connection pooling issues
+    const directUrl = process.env.DIRECT_URL
+    if (directUrl) {
+      return directUrl
+    }
   }
   
   return url
