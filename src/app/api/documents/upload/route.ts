@@ -15,6 +15,19 @@ export async function POST(request: NextRequest) {
     // Read file content
     const content = await file.text()
     
+    // Test database connection first
+    try {
+      await prisma.$connect()
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError)
+      return NextResponse.json({
+        error: 'Database connection failed',
+        details: dbError instanceof Error ? dbError.message : 'Unknown database error',
+        databaseUrl: process.env.DATABASE_URL ? 'Set' : 'Not set',
+        directUrl: process.env.DIRECT_URL ? 'Set' : 'Not set',
+      }, { status: 500 })
+    }
+    
     // Create document record in database
     const document = await prisma.document.create({
       data: {

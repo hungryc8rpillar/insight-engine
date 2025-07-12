@@ -18,17 +18,30 @@ interface Document {
 }
 
 export default async function DocumentsPage() {
-  const documents = await prisma.document.findMany({
-    orderBy: { uploadedAt: 'desc' },
-    select: {
-      id: true,
-      title: true,
-      content: true,
-      uploadedAt: true,
-      searchable: true,
-      typesenseId: true,
-    }
-  })
+  let documents: Document[] = []
+  let error: string | null = null
+  
+  try {
+    // Test database connection first
+    await prisma.$connect()
+    
+    documents = await prisma.document.findMany({
+      orderBy: { uploadedAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        uploadedAt: true,
+        searchable: true,
+        typesenseId: true,
+      }
+    })
+  } catch (dbError) {
+    console.error('Database error in documents page:', dbError)
+    error = dbError instanceof Error ? dbError.message : 'Unknown database error'
+  } finally {
+    await prisma.$disconnect()
+  }
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -48,6 +61,22 @@ export default async function DocumentsPage() {
   return (
     <main className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+              <div>
+                <h3 className="text-sm font-medium text-red-800">Database Connection Error</h3>
+                <p className="text-sm text-red-700 mt-1">{error}</p>
+                <p className="text-xs text-red-600 mt-2">
+                  Please check your DATABASE_URL and DIRECT_URL environment variables in Vercel.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
