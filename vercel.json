@@ -15,5 +15,6 @@
     "env": {
       "PRISMA_GENERATE_DATAPROXY": "true"
     }
-  }
+  },
+  "regions": ["iad1"]
 } 
