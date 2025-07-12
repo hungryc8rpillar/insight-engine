@@ -18,6 +18,14 @@ const nextConfig = {
     domains: ['localhost'],
     unoptimized: true,
   },
+  
+  // Webpack configuration for Prisma
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push('@prisma/client')
+    }
+    return config
+  },
 };
 
 export default nextConfig;

@@ -1,7 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { OpenAI } from 'openai'
-import { prisma } from '@/lib/prisma'
-import { typesenseClient } from '@/lib/typesense'
+
+// Import with error handling for build time
+let prisma: any
+let typesenseClient: any
+
+try {
+  const prismaModule = require('@/lib/prisma')
+  prisma = prismaModule.prisma
+} catch (error) {
+  console.warn('Prisma client not available during build:', error)
+}
+
+try {
+  const typesenseModule = require('@/lib/typesense')
+  typesenseClient = typesenseModule.typesenseClient
+} catch (error) {
+  console.warn('Typesense client not available during build:', error)
+}
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -44,19 +60,23 @@ export async function POST(request: NextRequest) {
     let documentTitle = ''
 
     // If a specific document is provided, get its content
-    if (documentId) {
-      const document = await prisma.document.findUnique({
-        where: { id: documentId },
-        select: { title: true, content: true }
-      })
-      
-      if (document) {
-        context = `Document: "${document.title}"\n\nContent:\n${document.content.substring(0, 3000)}...`
-        documentTitle = document.title
+    if (documentId && prisma) {
+      try {
+        const document = await prisma.document.findUnique({
+          where: { id: documentId },
+          select: { title: true, content: true }
+        })
+        
+        if (document) {
+          context = `Document: "${document.title}"\n\nContent:\n${document.content.substring(0, 3000)}...`
+          documentTitle = document.title
+        }
+      } catch (error) {
+        console.error('Database error:', error)
       }
     }
     // If a search query is provided, search for relevant documents
-    else if (searchQuery) {
+    else if (searchQuery && typesenseClient) {
       try {
         const searchResults = await typesenseClient.collections('documents').documents().search({
           q: searchQuery,
@@ -73,7 +93,7 @@ export async function POST(request: NextRequest) {
           }))
 
           context = `Relevant documents based on search "${searchQuery}":\n\n` +
-            relevantDocs.map((doc, index) => 
+            relevantDocs.map((doc: any, index: number) => 
               `${index + 1}. "${doc.title}" (relevance: ${Math.round(doc.score * 100)}%)\n${doc.content}...`
             ).join('\n\n')
         }
@@ -148,20 +168,26 @@ ${messages.length > 0 ? `This is an ongoing conversation. Please maintain contex
     }
 
     // Log the conversation for analytics
-    await prisma.searchQuery.create({
-      data: {
-        query: `Chat: ${message}`,
-        results: {
-          conversationId,
-          documentId,
-          searchQuery,
-          response: assistantMessage,
-          timestamp: new Date().toISOString(),
-          messageCount: updatedMessages.length,
-        },
-        userId: 'demo-user',
+    if (prisma) {
+      try {
+        await prisma.searchQuery.create({
+          data: {
+            query: `Chat: ${message}`,
+            results: {
+              conversationId,
+              documentId,
+              searchQuery,
+              response: assistantMessage,
+              timestamp: new Date().toISOString(),
+              messageCount: updatedMessages.length,
+            },
+            userId: 'demo-user',
+          }
+        })
+      } catch (error) {
+        console.error('Failed to log conversation:', error)
       }
-    })
+    }
 
     return NextResponse.json({
       message: assistantMessage,
