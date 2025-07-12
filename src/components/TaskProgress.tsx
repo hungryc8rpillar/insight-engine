@@ -3,7 +3,9 @@
 import { useRealtimeRun } from "@trigger.dev/react-hooks";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { parseStatus } from "@/lib/metadataStore";
+import Link from "next/link";
 
 interface TaskStatus {
   state: "running" | "completed" | "failed";
@@ -62,6 +64,13 @@ export function TaskProgress({ id, title = "Task in Progress", description }: Ta
               </pre>
             </div>
           )}
+          <div className="mt-6 text-center">
+            <Link href="/">
+              <Button>
+                Return to Home
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     );
@@ -75,6 +84,13 @@ export function TaskProgress({ id, title = "Task in Progress", description }: Ta
           <p className="text-center text-red-600 mb-4">
             {status.error || "An error occurred while processing your task."}
           </p>
+          <div className="mt-6 text-center">
+            <Link href="/">
+              <Button>
+                Return to Home
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     );
