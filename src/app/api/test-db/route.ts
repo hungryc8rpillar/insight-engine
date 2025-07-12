@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma, withRetry } from '@/lib/prisma'
 
 // Prevent pre-rendering during build
 export const dynamic = 'force-dynamic'
@@ -37,9 +37,11 @@ export async function GET() {
     // Test direct connection first
     const directConnection = await testDirectConnection()
     
-    // Test Prisma connection
-    await prisma.$connect()
-    const documentCount = await prisma.document.count()
+    // Test Prisma connection with retry logic
+    const documentCount = await withRetry(async () => {
+      await prisma.$connect()
+      return await prisma.document.count()
+    })
     
     return NextResponse.json({
       success: true,
@@ -76,7 +78,8 @@ export async function GET() {
         'Check if DATABASE_URL and DIRECT_URL are set correctly in Vercel',
         'Verify Supabase database is not paused',
         'Check if Supabase allows connections from Vercel IPs',
-        'Try using Prisma Accelerate for better serverless performance'
+        'Try using Prisma Accelerate for better serverless performance',
+        'Ensure both DATABASE_URL and DIRECT_URL have the same value in Vercel'
       ] : []
     }, { status: 500 })
   } finally {

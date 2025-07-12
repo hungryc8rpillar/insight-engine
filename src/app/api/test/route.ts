@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma, withRetry } from '@/lib/prisma'
 import { typesenseClient, initializeTypesenseCollection } from '@/lib/typesense'
 
 // Prevent pre-rendering during build
@@ -12,9 +12,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Test Prisma connection
+    // Test Prisma connection with retry logic
     try {
-      const documentCount = await prisma.document.count()
+      const documentCount = await withRetry(async () => {
+        return await prisma.document.count()
+      })
       results.services.prisma = { connected: true, documentCount }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
@@ -30,7 +32,8 @@ export async function GET(request: NextRequest) {
           'Check if DATABASE_URL and DIRECT_URL are set correctly in Vercel',
           'Verify Supabase database is not paused',
           'Check if Supabase allows connections from Vercel IPs',
-          'Try using Prisma Accelerate for better serverless performance'
+          'Try using Prisma Accelerate for better serverless performance',
+          'Ensure both DATABASE_URL and DIRECT_URL have the same value in Vercel'
         ] : []
       }
     }
