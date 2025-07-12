@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { startRun } from "@/app/actions";
 import DocumentUpload from '@/components/DocumentUpload'
 import Link from 'next/link'
 
@@ -17,28 +16,9 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Original Trigger.dev Demo */}
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              🚀 Trigger.dev Demo
-            </h2>
-            <p className="text-sm text-gray-600 mb-4 text-center">
-              Test real-time job execution with the original demo
-            </p>
-            <div className="flex justify-center">
-              <form action={startRun}>
-                <Button type="submit" size="lg">
-                  Start New Run
-                </Button>
-              </form>
-            </div>
-          </div>
-
-          {/* Document Upload */}
-          <div className="lg:col-span-2">
-            <DocumentUpload />
-          </div>
+        {/* Document Upload */}
+        <div className="max-w-2xl mx-auto mb-12">
+          <DocumentUpload />
         </div>
 
         {/* Quick Links */}
