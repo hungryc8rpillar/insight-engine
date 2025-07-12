@@ -32,9 +32,9 @@ export async function GET(request: NextRequest) {
 
     // Sort by relevance and limit results
     const sortedSuggestions = uniqueSuggestions
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 8)
-      .map(s => s.text)
+        .sort((a: { score: number }, b: { score: number }) => b.score - a.score)
+        .slice(0, 8)
+        .map((s: { text: string }) => s.text)
 
     return NextResponse.json({ 
       suggestions: sortedSuggestions,

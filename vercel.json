@@ -3,19 +3,10 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "functions": {
-    "src/app/api/**/*.ts": {
-      "maxDuration": 30
-    }
-  },
-  "env": {
-    "NODE_ENV": "production"
-  },
   "build": {
     "env": {
       "PRISMA_GENERATE_DATAPROXY": "true",
       "PRISMA_CLIENT_ENGINE_TYPE": "binary"
     }
-  },
-  "regions": ["iad1"]
+  }
 } 
