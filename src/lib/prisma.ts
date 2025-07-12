@@ -16,8 +16,10 @@ const getDatabaseUrl = () => {
     return url
   }
   
-  // Convert regular PostgreSQL URL to Prisma format if needed
-  if (url.startsWith('postgresql://')) {
+  // For Vercel deployment, we need to handle the URL format
+  if (process.env.NODE_ENV === 'production' && url.startsWith('postgresql://')) {
+    // In production, Vercel expects prisma:// format
+    // But we'll use the direct URL for now
     return url
   }
   

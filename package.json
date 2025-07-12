@@ -13,7 +13,9 @@
     "lint": "next lint",
     "trigger:dev": "npx trigger.dev@latest dev",
     "vercel-build": "prisma generate && next build",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",

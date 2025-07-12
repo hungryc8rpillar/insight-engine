@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -31,7 +31,7 @@ interface Document {
   title: string
 }
 
-export default function ChatPage() {
+function ChatPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -357,5 +357,30 @@ export default function ChatPage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto h-screen flex flex-col">
+          <div className="bg-white border-b px-6 py-4">
+            <div className="flex items-center gap-4">
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+              <h1 className="text-xl font-bold text-gray-900">AI Chat</h1>
+            </div>
+          </div>
+          <div className="flex-1 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          </div>
+        </div>
+      </main>
+    }>
+      <ChatPageContent />
+    </Suspense>
   )
 } 
