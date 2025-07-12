@@ -21,7 +21,6 @@
     "start": "next start",
     "lint": "next lint",
     "trigger:dev": "npx trigger.dev@latest dev",
-    "vercel-build": "next build",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",

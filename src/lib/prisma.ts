@@ -11,7 +11,7 @@ const getDatabaseUrl = () => {
     throw new Error('DATABASE_URL is not set')
   }
   
-  // For Vercel deployment with Supabase, prioritize DIRECT_URL
+  // For Vercel deployment, prioritize DIRECT_URL
   if (process.env.NODE_ENV === 'production') {
     const directUrl = process.env.DIRECT_URL
     if (directUrl) {
@@ -59,7 +59,8 @@ export async function withRetry<T>(operation: () => Promise<T>, maxRetries = 3):
       if (i < maxRetries - 1 && (
         errorMessage.includes("Can't reach database server") ||
         errorMessage.includes("connection") ||
-        errorMessage.includes("timeout")
+        errorMessage.includes("timeout") ||
+        errorMessage.includes("ECONNREFUSED")
       )) {
         console.log(`Database connection attempt ${i + 1} failed, retrying...`)
         await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))) // Exponential backoff
@@ -71,4 +72,10 @@ export async function withRetry<T>(operation: () => Promise<T>, maxRetries = 3):
   }
   
   throw new Error('Max retries exceeded')
+}
+
+// Initialize connection on module load for serverless
+if (process.env.NODE_ENV === 'production') {
+  // Warm up the connection
+  prisma.$connect().catch(console.error)
 }
