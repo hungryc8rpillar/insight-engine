@@ -12,7 +12,7 @@ export default function Home() {
             Smart Document Search & AI Assistant
           </h1>
           <p className="text-lg text-gray-600 mb-8">
-            Upload documents, search with AI, and get intelligent insights
+            Upload documents (TXT, MD, JSON, DOCX), search with AI, and get intelligent insights
           </p>
         </div>
 
@@ -87,7 +87,7 @@ export default function Home() {
             <div className="text-center">
               <div className="text-2xl mb-2">📤</div>
               <div className="font-medium">1. Upload</div>
-              <div className="text-gray-600">Upload your documents</div>
+              <div className="text-gray-600">Upload your documents (TXT, MD, JSON, DOCX)</div>
             </div>
             <div className="text-center">
               <div className="text-2xl mb-2">⚡</div>

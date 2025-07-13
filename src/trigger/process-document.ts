@@ -11,28 +11,35 @@ interface ProcessDocumentPayload {
   documentId: string;
   title: string;
   content: string;
+  fileType?: string;
 }
 
 export const processDocumentTask = task({
   id: "process-document",
   run: async (payload: ProcessDocumentPayload) => {
-    const { documentId, title, content } = payload;
+    const { documentId, title, content, fileType } = payload;
     
     console.log(`Processing document ${documentId}: ${title}`);
 
     try {
       // Step 1: Generate AI summary/keywords
       console.log("Generating AI summary...");
+      
+      const fileTypeInfo = fileType ? ` (${fileType.toUpperCase()} file)` : '';
+      const systemPrompt = fileType === 'docx' || fileType === 'doc' 
+        ? "You are a helpful assistant that creates concise summaries and extracts key topics from Word documents. Pay attention to document structure, headings, and formatting. Respond with a JSON object containing 'summary' and 'keywords' fields."
+        : "You are a helpful assistant that creates concise summaries and extracts key topics from documents. Respond with a JSON object containing 'summary' and 'keywords' fields.";
+      
       const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [
           {
             role: "system",
-            content: "You are a helpful assistant that creates concise summaries and extracts key topics from documents. Respond with a JSON object containing 'summary' and 'keywords' fields."
+            content: systemPrompt
           },
           {
             role: "user",
-            content: `Please analyze this document and provide a summary and keywords:\n\nTitle: ${title}\n\nContent: ${content.substring(0, 2000)}...`
+            content: `Please analyze this document${fileTypeInfo} and provide a summary and keywords:\n\nTitle: ${title}\n\nContent: ${content.substring(0, 2000)}...`
           }
         ],
         max_tokens: 200,

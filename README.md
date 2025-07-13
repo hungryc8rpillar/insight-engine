@@ -19,10 +19,11 @@ A modern web application that combines document management, AI-powered search, a
 - **Real-time chat interface** with typing indicators
 
 ### 📄 **Document Management**
-- **Upload support** for `.txt`, `.md`, `.json` files
+- **Upload support** for `.txt`, `.md`, `.json`, `.docx`, `.doc` files
+- **Word document parsing** with mammoth.js
 - **Background processing** with AI-powered analysis
 - **Document status tracking** (processing/ready)
-- **Document listing** with metadata and actions
+- **Document listing** with metadata and file type indicators
 - **Processing pipeline** with error handling
 
 ### ⚡ **Real-time Features**

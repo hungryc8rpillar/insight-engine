@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
-import { Search, MessageSquare, FileText, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { Search, MessageSquare, FileText, Clock, CheckCircle, AlertCircle, File, FileText as FileTextIcon } from 'lucide-react'
 
 // Force dynamic rendering to avoid build-time database calls
 export const dynamic = 'force-dynamic'
@@ -15,6 +15,28 @@ interface Document {
   uploadedAt: Date
   searchable: boolean
   typesenseId: string | null
+  filePath?: string | null
+}
+
+// Helper function to get file type and icon
+function getFileTypeInfo(filePath: string | null | undefined) {
+  if (!filePath) return { type: 'unknown', icon: File, label: 'Unknown' }
+  
+  const extension = filePath.split('.').pop()?.toLowerCase()
+  
+  switch (extension) {
+    case 'docx':
+    case 'doc':
+      return { type: 'word', icon: FileTextIcon, label: 'Word Document' }
+    case 'txt':
+      return { type: 'text', icon: FileText, label: 'Text File' }
+    case 'md':
+      return { type: 'markdown', icon: FileText, label: 'Markdown' }
+    case 'json':
+      return { type: 'json', icon: FileText, label: 'JSON File' }
+    default:
+      return { type: 'unknown', icon: File, label: 'Unknown' }
+  }
 }
 
 export default async function DocumentsPage() {
@@ -34,6 +56,7 @@ export default async function DocumentsPage() {
         uploadedAt: true,
         searchable: true,
         typesenseId: true,
+        filePath: true,
       }
     })
   } catch (dbError) {
@@ -121,34 +144,44 @@ export default async function DocumentsPage() {
           </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {documents.map((document) => (
-              <Card key={document.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <CardTitle className="text-lg line-clamp-2">
-                      {document.title}
-                    </CardTitle>
-                    <Badge 
-                      variant={document.searchable ? "default" : "secondary"}
-                      className="flex items-center gap-1"
-                    >
-                      {document.searchable ? (
-                        <>
-                          <CheckCircle className="w-3 h-3" />
-                          Ready
-                        </>
-                      ) : (
-                        <>
-                          <Clock className="w-3 h-3" />
-                          Processing
-                        </>
-                      )}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-500">
-                    <Clock className="w-4 h-4 mr-1" />
-                    {formatDate(document.uploadedAt)}
-                  </div>
+            {documents.map((document) => {
+              const fileTypeInfo = getFileTypeInfo(document.filePath)
+              const FileIcon = fileTypeInfo.icon
+              
+              return (
+                <Card key={document.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-lg line-clamp-2">
+                        {document.title}
+                      </CardTitle>
+                      <Badge 
+                        variant={document.searchable ? "default" : "secondary"}
+                        className="flex items-center gap-1"
+                      >
+                        {document.searchable ? (
+                          <>
+                            <CheckCircle className="w-3 h-3" />
+                            Ready
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="w-3 h-3" />
+                            Processing
+                          </>
+                        )}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {formatDate(document.uploadedAt)}
+                      </div>
+                      <div className="flex items-center">
+                        <FileIcon className="w-4 h-4 mr-1" />
+                        {fileTypeInfo.label}
+                      </div>
+                    </div>
                 </CardHeader>
                 <CardContent className="pt-0">
                   <p className="text-gray-600 text-sm mb-4 line-clamp-3">
@@ -181,7 +214,8 @@ export default async function DocumentsPage() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )
+            })}
           </div>
         )}
 
