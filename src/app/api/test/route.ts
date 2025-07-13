@@ -12,13 +12,24 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Add environment variable logging
+    console.log('=== PRISMA CONNECTION DEBUG ===')
+    console.log('DATABASE_URL (first 50 chars):', process.env.DATABASE_URL?.substring(0, 50) + '...')
+    console.log('DIRECT_URL (first 50 chars):', process.env.DIRECT_URL?.substring(0, 50) + '...')
+    console.log('DATABASE_URL contains pooler:', process.env.DATABASE_URL?.includes('pooler'))
+    console.log('DATABASE_URL port:', process.env.DATABASE_URL?.match(/:(\d+)/)?.[1])
+    console.log('DIRECT_URL port:', process.env.DIRECT_URL?.match(/:(\d+)/)?.[1])
+    
     // Test Prisma connection with retry logic
     try {
+      console.log('Attempting Prisma connection...')
       const documentCount = await withRetry(async () => {
         return await prisma.document.count()
       })
+      console.log('Prisma connection successful, document count:', documentCount)
       results.services.prisma = { connected: true, documentCount }
     } catch (error) {
+      console.error('Prisma connection failed:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       const isConnectionError = errorMessage.includes("Can't reach database server") || 
                                errorMessage.includes("connection") ||
@@ -33,7 +44,7 @@ export async function GET(request: NextRequest) {
           'Verify Supabase database is not paused',
           'Check if Supabase allows connections from Vercel IPs',
           'Try using Prisma Accelerate for better serverless performance',
-          'Ensure both DATABASE_URL and DIRECT_URL have the same value in Vercel'
+          'Ensure DATABASE_URL uses pooler (port 6543) and DIRECT_URL uses direct (port 5432)'
         ] : []
       }
     }
